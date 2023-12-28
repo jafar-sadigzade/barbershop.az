@@ -2,14 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 
 import datetime
+from barberproject.storage_backends import PublicMediaStorage, PrivateMediaStorage
 
-
-# Create your models here.
 
 class Barber(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     barber_name = models.CharField(max_length=50, blank=True)
-    barber_img = models.ImageField(upload_to="barber_img", blank=True)
+    barber_img = models.ImageField(storage=PublicMediaStorage(), upload_to="barber_img", blank=True)
     barber_phone_number = models.CharField(max_length=10, null=True, blank=True)
     barber_email = models.CharField(max_length=50, null=True, blank=True)
     barber_facebook = models.CharField(max_length=50, null=True, blank=True)
@@ -59,7 +58,7 @@ class Barber(models.Model):
 class BarberSalon(models.Model):
     barber = models.ManyToManyField(Barber, related_name="barber", default=None, blank=True)
     salon_name = models.CharField(max_length=50)
-    salon_image = models.ImageField(upload_to="salon/")
+    salon_image = models.ImageField(storage=PublicMediaStorage() ,upload_to="salon/")
 
     def __str__(self):
         return f"{self.salon_name}"
@@ -70,7 +69,7 @@ class Service(models.Model):
     barber_service = models.CharField(max_length=100)
     service_price = models.IntegerField(null=False)
     service_time = models.IntegerField(null=False)
-    service_img = models.ImageField(upload_to="service_img")
+    service_img = models.ImageField(storage=PublicMediaStorage(), upload_to="service_img")
 
     def __str__(self):
         return f"{self.barber_service}"

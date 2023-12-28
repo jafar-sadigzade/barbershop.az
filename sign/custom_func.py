@@ -15,12 +15,14 @@ def pre_end_time(barber, service, start_time):
     end_time = datetime.datetime.strptime(end_time, "%H:%M:%S").time()
     return end_time
 
+
 def reservation_cost(barber,service):
     service_cost = 0 
     for i in service:
         services = Service.objects.get(id=i, barber_name=barber)
         service_cost += services.service_price    
     return float(service_cost)
+
 
 def is_expired(barber):
         today = datetime.date.today()
