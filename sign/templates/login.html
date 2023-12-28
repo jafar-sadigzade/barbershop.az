@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="Jafar Sadigzade">
+        <title> Giriş </title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="{% static '/css/signupstyle.css' %}">
+                
+        <!-- Boxicons CSS -->
+        <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+                        
+    </head>
+    <body>
+        <section class="container forms">
+            <div class="form login">
+                <div class="form-content">
+                    <header>Giriş</header>
+                    <form action="{% url 'login' %}" method="POST">
+                        {% csrf_token %}
+                        {% if error1 %} <div style="background-color: rgba(255, 0, 0, 0.4); line-height: 1.5;"> {{error1}} </div> {%endif%}
+                        {% if error2 %} <div style="background-color: rgba(255, 0, 0, 0.4); line-height: 1.5;"> {{error2}} </div> {%endif%}
+                        {% if success1 %} <div style="background-color: rgba(0, 128, 0, 0.4); line-height: 2;"> {{success1}} </div> {%endif%}
+                        {% if success2 %} <div style="background-color: rgba(0, 128, 0, 0.4); line-height: 2;"> {{success2}} </div> {%endif%}
+                        {%if message%}<div style="background-color: rgba(0, 128, 0, 0.4); line-height: 1.5;"> {{message}}&nbsp;{{username}} </div>{%endif%}
+                        {% if error %} <div style="background-color: rgba(255, 0, 0, 0.4); line-height: 1.5;"> {{error}} </div> {%endif%}
+                        <div class="field input-field">
+                            <input type="text" placeholder="name" class="input" name="username" value={{username}}>
+                        </div>
+
+                        <div class="field input-field">
+                            <input type="password" placeholder="Password" class="password" name="password" value={{password}}>
+                            <i class='bx bx-hide eye-icon'></i>
+                        </div>
+
+                        <div class="form-link">
+                            <a href="{% url 'forget-password' %}" class="forgot-pass">Parolu unutmusan?</a>
+                        </div>
+
+                        <div class="field button-field">
+                            <button>Giriş</button>
+                        </div>
+                    </form>
+                    <div class="form-link">
+                        <span>Hələ də qeydiyyatdan keçməmisən? <a href="{% url 'register' %}">Qeydiyyat</a></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- JavaScript -->
+        <script src="{% static '/js/signupscript.js' %}"></script>
+    </body>
+</html>

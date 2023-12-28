@@ -1,0 +1,81 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Hesabım</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand ml-auto" href="{% url '' %}">Əsas səhifə</a>
+            </div>
+        </nav>
+        <form action="{% url 'user-profile' user.id %}" method="POST">
+        {%csrf_token%}
+            <div class="container rounded bg-white mt-5 mb-5">
+                <div class="row">
+                    <div class="col-md-3 border-right">
+                        <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                            <img class="rounded-circle mt-5" width="150px" src="" value="">
+                            <span class="font-weight-bold">
+                                <label class="labels">username</label>
+                                <input type="text" value="{{user.username}}"  class="form-control" readonly>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-5 border-right">
+                        <div class="p-3 py-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="text-right">Hesab tənzimləmələri</h4><br>
+                            </div>
+                            {% for message in messages %}
+                            <h6 style="background-color: rgba(0, 128, 0, 0.4); line-height: 3;"> {{message}} </h6>
+                            {% endfor %}
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="labels">Adınız</label>
+                                    <input type="text" name="first_name" value="{{user.first_name}}" maxlength="150" id="id_first_name" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="labels">Soyadınız</label>
+                                    <input type="text" name="last_name" value="{{user.last_name}}" maxlength="150" id="id_last_name" class="form-control">
+                                </div>
+                            </div>
+                            <div class="mt-5 text-center"><button type="submit" class="btn btn-primary profile-button" type="button">Yadda saxla</button></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="col-md-12">
+                            <div class="p-3 py-5">
+                                <div class="d-flex justify-content-between align-items-center experience"><h4 class="text-right">Rezervasiyalar</h4></div><br>
+                                {% comment %} <h3>Tezliklə</h3> {% endcomment %}
+                                <div class="col-md-12">
+                                    <label style="font-size:18px;" class="labels">Aktiv rezervasiyalar:&nbsp;{{reservation_count}}&nbsp;ədəd</label>
+                                </div><br>
+                                <div class="col-md-12">
+                                    <label style="font-size:18px;" class="labels"><b>Rezervasiya detalları</b></label><br>
+                                    {%for reservation in reservations%}
+                                        <span> <b>Tam adı:</b>&nbsp; {{reservation.full_name}}</span><br>
+                                        <span> <b>Əlaqə No:</b>&nbsp; {{reservation.phone_number}} </span><br>
+                                        <span> <b>Tarix:</b>&nbsp;{{reservation.time}}&nbsp;{{reservation.date}}</span><br>
+                                        <span> <b>İstənilən xidmət:</b>&nbsp;{%for service in reservation.set_service.all%}{{service}},&nbsp;{%endfor%}</span><br>
+                                        <span> <b>Xidmətin qiyməti:</b>&nbsp; {{reservation.service_cost}}</span><br>
+                                        <span> -------------------------------------------------- </span><br>
+                                    {%endfor%}
+                                    <a href="{% url 'user-reservations' request.user.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Daha ətraflı</span></a><br><br>
+                                </div><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </body>
+</html>

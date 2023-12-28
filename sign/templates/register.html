@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="Jafar Sadigzade">
+        <title> Qeydiyyat formu </title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="{% static 'css/signupstyle.css' %}">
+                
+        <!-- Boxicons CSS -->
+        <link href='https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css' rel='stylesheet'>
+                        
+    </head>
+    <body>
+        <section class="container forms">
+            <!-- Signup Form -->
+
+            <div class="form signup">
+                <div class="form-content">
+                    <header>Qeydiyyat</header>
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if error %} <div style="background-color: rgba(256, 0, 0, 0.4); line-height: 3;"> {{error}} </div> {%endif%}
+                        <div class="field input-field">
+                            <input type="text" placeholder="username" class="input" name="username" maxlength="150" value={{username}}>
+                        </div>
+
+                        <div class="field input-field">
+                            <input type="email" placeholder="email" class="input" name="email" maxlength="150" value={{email}}>
+                        </div>
+
+                        <div class="field input-field">
+                            <input type="password" placeholder="parol" class="password" name="password1">
+                        </div>
+
+                        <div class="field input-field">
+                            <input type="password" placeholder="parolu doğrula" class="password" name="password2">
+                            <i class='bx bx-hide eye-icon'></i>
+                        </div>
+
+                        <div class="field button-field">
+                            <button>Qeydiyyat</button>
+                        </div>
+                    </form>
+                    <div class="form-link">
+                        <span>Qeydiyyatın var? <a href="{% url 'login' %}">Giriş</a></span>
+                    </div>
+                </div>
+                <div class="line"></div>
+            </div>
+            
+        </section>
+
+        <!-- JavaScript -->
+        <script src="{% static '/js/signupscript.js' %}"></script>
+    </body>
+</html>

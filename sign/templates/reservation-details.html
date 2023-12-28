@@ -1,0 +1,89 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Xidmətlər</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container justify-content-end">
+                <a class="navbar-brand ml-auto" href="{% url 'barber' barber.id %}">Əsas səhifə</a>
+                <a class="navbar-brand ml-auto" href="{% url 'profile' barber.id %}">Hesab əməliyyatları</a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="row justify-content-center">
+                    <div class="col-xl-8 col-lg-8 col-md-11 col-sm-11">
+                        <div class="section-tittle text-center mb-100"><br><br>
+                            <h2>Rezervasiya tarixçəsi</h2><br><br><br>
+                        </div>
+                    </div>
+                </div>
+                <div class="card w-75" style="margin-left:50px !important; margin-bottom:20px !important;">
+                    <div class="card-body">
+                        <p class="card-text">Bugün:&nbsp;{{barber.count_reservation_current_day}}&nbsp;nəfər </p>
+                        <p class="card-text">Bu ay:&nbsp;{{barber.count_reservation_current_month}}&nbsp;nəfər</p>
+                        <p class="card-text">Bitmiş:&nbsp;{{raports_expired}}&nbsp;nəfər</p>
+                        <p class="card-text">Ləğv edilmiş:&nbsp;{{raports_deny}}&nbsp;nəfər</p>
+                        <p class="card-text">Ümumi:&nbsp;{{barber.count_reservation_all}}&nbsp;nəfər</p>
+                        
+                    </div>
+                </div>
+                <div class="section-tittle text-center mb-100"><br><br>
+                    <h3>Bugün</h3>
+                </div>
+                <div class="card w-75" style="margin-left:50px !important; margin-bottom:20px !important;">
+                    <div class="card-body">
+                        {%for service_name,service_price,reservations_count,comission  in raports_day%}
+                        <p class="card-text"><b>{{forloop.counter}}</b></p>
+                        <p class="card-text"><b>Xidmətin adı:</b>&nbsp;{{service_name}}</p>
+                        <p class="card-text"><b>Xidmətin qiyməti:</b>&nbsp;{{service_price}}&nbsp;manat</p>
+                        <p class="card-text"><b>Rezervasiya olunanlar:</b>&nbsp;{{reservations_count}}&nbsp;nəfər</p>
+                        <p class="card-text"><b>Tutulan komissiya:</b>&nbsp;{{comission}}&nbsp;manat</p>
+                        <span> -------------------------------------------------- </span><br>
+                        {%endfor%}
+                    </div>
+                </div>
+                <div class="section-tittle text-center mb-100"><br><br>
+                    <h3>Bu ay</h3>
+                </div>
+                <div class="card w-75" style="margin-left:50px !important; margin-bottom:20px !important;">
+                    <div class="card-body">
+                        {%for service_name,service_price,reservations_count,comission in raports_month%}
+                        <p class="card-text"><b>{{forloop.counter}}</b></p>
+                        <p class="card-text"><b>Xidmətin adı:</b>&nbsp;{{service_name}}</p>
+                        <p class="card-text"><b>Xidmətin qiyməti:</b>&nbsp;{{service_price}}&nbsp;manat</p>
+                        <p class="card-text"><b>Rezervasiya olunanlar:</b>&nbsp;{{reservations_count}}&nbsp;nəfər</p>
+                        <p class="card-text"><b>Tutulan komissiya:</b>&nbsp;{{comission}}&nbsp;manat</p>
+                        <span> -------------------------------------------------- </span><br>
+                        {%endfor%}
+                    </div>
+                </div>
+                <div class="section-tittle text-center mb-100"><br><br>
+                    <h3>Ümumi</h3>
+                </div>
+                <div class="card w-75" style="margin-left:50px !important; margin-bottom:20px !important;">
+                    <div class="card-body">
+                        {%for service_name,service_price,reservations_count,comission in raports_all%}
+                        <p class="card-text"><b>{{forloop.counter}}</b></p>
+                        <p class="card-text"><b>Xidmətin adı:</b>&nbsp;{{service_name}}</p>
+                        <p class="card-text"><b>Xidmətin qiyməti:</b>&nbsp;{{service_price}}&nbsp;manat</p>
+                        <p class="card-text"><b>Rezervasiya olunanlar:</b>&nbsp;{{reservations_count}}&nbsp;nəfər</p>
+                        <p class="card-text"><b>Tutulan komissiya:</b>&nbsp;{{comission}}&nbsp;manat</p>
+                        <span> -------------------------------------------------- </span><br>
+                        {%endfor%}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </body>
+</html>

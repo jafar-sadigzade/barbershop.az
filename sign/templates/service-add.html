@@ -1,0 +1,69 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Xidmət əlavə et</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand ml-auto" href="{% url 'barber' barber.id %}">Əsas səhifə</a>
+                <a class="navbar-brand ml-auto" href="{% url 'services' barber.id %}">Xidmətlər</a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="row justify-content-center">
+                    <div class="col-xl-8 col-lg-8 col-md-11 col-sm-11">
+                        <div class="section-tittle text-center mb-100"><br><br>
+                            <h2>Xidmətləri əlavə et və redakte et!</h2><br><br><br>
+                        </div>
+                    </div>
+                </div>
+                {% for message in messages %}
+                <h6 style="background-color: rgba(0, 128, 0, 0.4); line-height: 3;"> {{message}} </h6>
+                {% endfor %}
+                <form method="POST" enctype="multipart/form-data">
+                    {%csrf_token%}
+                    <div class="card w-75" style="margin-left:50px !important;">
+                        <div class="card-body">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-Xidmətin adıxs-12">
+                                <div class="form-group">
+                                    <label>Xidmətin adı</label>
+                                    <input type="text" name="service_name" required>
+                                </div>
+                            </div><br>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Xidmətin qiyməti</label>
+                                    <input type="number" name="service_price" required>
+                                </div>
+                            </div><br>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Xidmət üçün lazımi vaxt</label>
+                                    <input type="number" name="service_time" required>
+                                </div>
+                            </div><br>
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Şəkil</label>
+                                    <input type="file" name="service_img" required><br>
+                                </div>
+                            </div>
+                            <div class="mt-5 text-center"><button type="submit" class="btn btn-primary profile-button" type="button">Yadda saxla</button></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </body>
+</html>

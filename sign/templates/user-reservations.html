@@ -1,0 +1,51 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Xidmətlər</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand ml-auto" href="{% url '' %}">Əsas səhifə</a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="row justify-content-center">
+                    <div class="col-xl-8 col-lg-8 col-md-11 col-sm-11">
+                        <div class="section-tittle text-center mb-100"><br><br>
+                            <h2>Rezervasiyanın ləğv edilməsi</h2><br><br><br>
+                        </div>
+                    </div>
+                </div>
+                {% for message in messages %}
+                <h6 style="background-color: rgba(0, 128, 0, 0.4); line-height: 3;"> {{message}} </h6>
+                {% endfor %}
+                {%for reservation in reservations%}
+                <div class="card w-75" style="margin-left:50px !important;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{reservation.full_name}}</h5>
+                        <p class="card-text"><b>Əlaqə No:</b> {{reservation.phone_number}}</p>
+                        <p class="card-text"><b>Tarix:</b> {{reservation.time}}&nbsp;{{reservation.date}}</p>
+                        <p class="card-text"><b>İstənilən xidmət:</b>{%for service in reservation.set_service.all%}{{service}},&nbsp;{%endfor%}</p>
+                        <p class="card-text"><b>Xidmətin qiyməti:</b> {{reservation.service_cost}} manat</p>
+                        {%if reservation.is_expired%}
+                        {%else%}
+                        <a href="{% url 'reservations-delete' reservation.id %}" class="btn btn-primary">Sil</a>
+                        {%endif%}
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+        
+    </body>
+</html>

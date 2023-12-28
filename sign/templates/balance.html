@@ -1,0 +1,43 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Balans əməliyyatları</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container justify-content-end">
+                <a class="navbar-brand ml-auto" href="{% url 'barber' barber.id %}">Əsas səhifə</a>
+                <a class="navbar-brand ml-auto" href="{% url 'profile' barber.id %}">Hesab əməliyyatları</a>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="row justify-content-center">
+                    <div class="col-xl-8 col-lg-8 col-md-11 col-sm-11">
+                        <div class="section-tittle text-center mb-100"><br><br>
+                            <h2>Əməliyyat tarixçəsi</h2><br><br><br>
+                        </div>
+                    </div>
+                </div>
+                {%for transaction in transactions%}
+                <div class="card w-75" style="margin-left:50px !important; margin-bottom:20px !important;">
+                    <div class="card-body">
+                        <p class="card-text">Məbləğ:&nbsp; {{transaction.money}}&nbsp;manat </p>
+                        <p class="card-text">Tarix:&nbsp; {{transaction.date}}</p>
+                        <p class="card-text"><b>Əməliyyat:&nbsp;{{transaction.is_success_description}}</b></p>
+                    </div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+        
+    </body>
+</html>

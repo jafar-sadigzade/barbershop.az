@@ -1,0 +1,180 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Cədvəlim</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/tablestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand ml-auto" href="{% url 'barber' barber.id %}">Əsas səhifə</a>
+                <a class="navbar-brand ml-auto" href="{% url 'services' barber.id %}">Xidmətlər</a>
+            </div>
+        </nav><br>
+        <div class="container1">
+            <div class="row">
+                <div class="text">Axtar</div>
+                <form action="{% url 'search-barber' barber.id  %}" method="post" class="custom-form booking-form" id="bb-booking-form" role="form">
+                    {%csrf_token%}
+                    <div class="form-row">
+                        <div class="input-data">
+                            <input type="date" name="date" class="form-control" value="{{today}}">
+                            <div class="underline"></div>
+                            <label for="">Tarix</label>
+                        </div>
+                   </div>
+                   <div class="form-row submit-btn">
+                    <div class="input-data">
+                        <div class="inner"></div>
+                        <input type="submit" value="Axtar">
+                     </div>
+                </div>
+                </form>
+            </div>
+        </div>
+        {% if error %}
+        <div class="container1">
+            <div class="row">
+                <p class="text-black" style="background-color: rgba(255, 0, 0, 0.6); line-height: 2.5;">{{error}}</p>
+            </div>
+        </div>
+        {%endif%}
+        {% for message in messages %}
+        <div class="container1">
+            <div class="row">
+                <p class="text-black" style="background-color: rgba(128, 0, 0, 0.6); line-height: 2.5;">{{message}}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="container">
+            <div class="row">
+                <h2 style="color:white;">Rezervasiyalar</h2>
+            </div>
+        </div>
+        <table>
+            <thead>
+              <tr>
+                <th>Sıra</th>
+                <th>Tarix</th>
+                <th>Ad, Soyad</th>
+                <th>Xidmət</th>
+                <th>Əlaqə No</th>
+                <th>Başlama saatı</th>
+                <th>Bitmə saatı</th>
+                <th>Vəziyyət</th>
+              </tr>
+            <thead>
+            <tbody>
+                {% for reservation in reservations %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{reservation.date}}</td>
+                    <td>{{reservation.full_name}}</td>
+                    <td>{%for i in reservation.set_service.all %}{{i}},&nbsp;{%endfor%}</td>
+                    <td>{{reservation.phone_number}}</td>
+                    <td>{{reservation.time}}</td>
+                    <td>{{reservation.end_time}}</td>
+                    <td>Rezerv</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table><br>
+        <div class="container">
+            <div class="row">
+                <h2 style="color:white;">Boş saatlar</h2>
+            </div>
+        </div>
+        <table id="table1">
+            <thead>
+              <tr>
+                <th>Sıra</th>
+                <th>Tarix</th>
+                <th>Başlama saatı</th>
+                <th>Bitmə saatı</th>
+                <th>Vəziyyət</th>
+              </tr>
+            <thead>
+            <tbody>
+                {%for unreserved_start_time, unreserved_end_time in unreservations %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td>{{today}}</td>
+                    <td>{{unreserved_start_time}}</td>
+                    <td>{{unreserved_end_time}}</td>
+                    <td>Boş</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table><br>
+
+        <div class="container1">
+            <div class="text">Rezerv et</div>
+            <form action="{% url 'reserve' barber.id  %}" method="POST">
+                {%csrf_token%}
+               <div class="form-row">
+                    <div class="input-data">
+                        <input type="text" name="full_name" required>
+                        <div class="underline"></div>
+                        <label for="">Ad, Soyad</label>
+                    </div>
+                    <div class="input-data">
+                        <input type="tel" name="phone"required>
+                        <div class="underline"></div>
+                        <label for="">Əlaqə</label>
+                    </div>
+               </div>
+               <div class="form-row">
+                    <div class="input-data">
+                        <input type="time" value="09:00:00" name="time" required>
+                        <div class="underline"></div>
+                        <label for="">Başlama vaxtı</label>
+                    </div>
+                    <div class="input-data">
+                        <input type="date" value="{{today}}" name="date" required>
+                        <input type="hidden" name="message" value=" ">
+                        <div class="underline"></div>
+                        <label for="">Tarix</label>
+                    </div>
+               </div>
+               <div class="form-row">
+                    <div class="input-data textarea">
+                        <select class="form-select form-control" name="service" multiple>
+                            <option>Xidmət seçin</option>
+                            {%for service in services%}
+                            <option value="{{service.id}}">{{service.barber_service}}</option>
+                            {%endfor%}
+                        </select>
+                        <div class="underline"></div>
+                        <label for="">Xidmət</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-data">
+                        <div class="form-row submit-btn">
+                            <div class="input-data">
+                                <div class="inner"></div>
+                                <input type="submit" value="Rezerv et">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
+    <script>
+        function reloadPage() {
+            setTimeout(function() {
+                location.reload();
+            }, 50000);  // 5000 milliseconds = 5 seconds
+        }
+        // Call reloadPage() function when the page loads
+        window.onload = reloadPage;
+    </script>
+</html>

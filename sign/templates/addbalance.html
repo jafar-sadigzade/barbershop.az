@@ -1,0 +1,75 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>barbershop.az | Maliyyə</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="author" content="Jafar Sadigzade">
+        <link rel="stylesheet" href="{%static "css/bootstrap.min.css"%}">
+        <link rel="stylesheet" href="{%static "css/profilestyle.css"%}">
+    </head>
+    <body>
+        <nav class="navbar navbar-dark bg-primary">
+            <div class="container justify-content-end">
+                <a class="navbar-brand ml-auto" href="{% url 'barber' barber.id %}">Əsas səhifə</a>
+                <a class="navbar-brand ml-auto" href="{% url 'services' barber.id %}">Xidmətlər</a>
+            </div>
+        </nav> 
+        <form action="" method="POST">
+        {%csrf_token%}
+            <div class="container rounded bg-white mt-5 mb-5">
+                <div class="row">
+                    <div class="col-md-3 border-right">
+                        <div class="d-flex flex-column align-items-center text-center p-3 py-5">
+                            <img class="rounded-circle mt-5" width="150px" src="{{barber.barber_img.url}}" value="">
+                            <span class="font-weight-bold">
+                                <input type="text" value="{{user.username}}"  class="form-control" readonly>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-5 border-right">
+                        <div class="p-3 py-5">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4 class="text-center"><em>NMRavto.az</em>-da əməliyyat balansını artır</h4><br>
+                            </div>
+                            {% for message in messages %}
+                            <h6 style="background-color: rgba(0, 128, 0, 0.4); line-height: 3;"> {{message}} </h6>
+                            {% endfor %}
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label class="labels">Əlavə olunacaq məbləğ AZN</label>
+                                    <input type="text" name="money" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="mt-5 text-center"><button type="submit" class="btn btn-primary profile-button" type="button">Balansı artır</button></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="col-md-12">
+                            <div class="p-3 py-5">
+                                <div class="d-flex justify-content-between align-items-center experience"><h4 class="text-right">Hesab əməliyyatları</h4></div><br>
+                                <div class="col-md-12">
+                                    <label style="font-size:18px;" class="labels">Hesabdakı məbləğ:&nbsp;{{barber.barber_money}}&nbsp;manat</label>
+                                </div><br>
+                                <a href="{% url "profile" barber.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Profile qayıt</span></a><br><br>
+                                <div class="col-md-12">
+                                    <label style="font-size:18px;" class="labels"><b>Hesab tarixçəsi</b></label><br>
+                                    {%for transaction in transactions%}
+                                        <span> Məbləğ:&nbsp; {{transaction.money}}&nbsp;manat </span><br>
+                                        <span> Tarix:&nbsp; {{transaction.date}} </span><br>
+                                        <span> Əməliyyat:&nbsp;{{transaction.is_success_description}} </span><br>
+                                        <span> -------------------------------------------------- </span><br>
+                                    {%endfor%}
+                                </div><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </body>
+</html>

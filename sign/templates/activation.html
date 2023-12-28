@@ -1,0 +1,8 @@
+{% autoescape off %}
+
+Salam {{user.username}}
+Qeydiyyatınızı tamamlamaq üçün zəhmət olmasa linkə keçid edin!
+
+http://{{domain}}{%url 'activate' uidb64=uid token=token%}
+
+{% endautoescape %}
