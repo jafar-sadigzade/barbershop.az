@@ -1,29 +1,36 @@
-from django.shortcuts import render, redirect, HttpResponseRedirect
-from .models import Barber, Service, Reservation, Transaction, BarberSalon
-from .custom_func import pre_end_time, reservation_cost, is_expired
+from .models import Barber, Service, Reservation, Transaction, BarberSalon, NewUser
+from .custom_func import pre_end_time, reservation_cost, is_expired, time_is_verification
+from .tokens import account_activation_token
 
-import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
+
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
-from .tokens import account_activation_token
-from django.core.mail import EmailMessage
+
 from django.conf import settings
-from django.contrib import messages
+from django.urls import reverse
+from django.shortcuts import render, redirect, HttpResponseRedirect
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+
 from smtplib import SMTPRecipientsRefused
+import datetime
 
 
-# Create your views here.
-
-def index(request):
-    barbers = Barber.objects.filter(is_home=True, is_active=True)
-    salons = BarberSalon.objects.all()
-    return render(request, "index.html", {"barbers": barbers, "salons":salons})
+# not a view
+def reset_password_mail(user, request):
+    current_site = get_current_site(request)
+    email_subject = 'Parol sıfırlama'
+    email_body = render_to_string('resetting.html', {
+        'user': user,
+        'domain': current_site,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': account_activation_token.make_token(user)
+    })
+    email = EmailMessage(subject=email_subject, body=email_body, from_email=settings.EMAIL_FROM_USER, to=[user.email])
+    email.send()
 
 
 def send_activation_mail(user, request):
@@ -39,43 +46,84 @@ def send_activation_mail(user, request):
     email.send()
 
 
-def reset_password_mail(user, request):
-    current_site = get_current_site(request)
-    email_subject = 'Parol sıfırlama'
-    email_body = render_to_string('resetting.html', {
-        'user': user,
-        'domain': current_site,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': account_activation_token.make_token(user)
-    })
-    email = EmailMessage(subject=email_subject, body=email_body, from_email=settings.EMAIL_FROM_USER, to=[user.email])
-    email.send()
+# my views
+def register(request):
+    if request.method == 'POST':
+        username = (request.POST["username"]).lower()
+        first_name = (request.POST["first_name"]).lower()
+        email = request.POST["email"]
+        pass1 = request.POST["password1"]
+        pass2 = request.POST["password2"]
+
+        if pass1 == pass2:
+            if NewUser.objects.filter(username=username).exists():
+                messages.error(request, "Bu ad artıq istifadə olunub!")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+            else:
+                if NewUser.objects.filter(email=email).exists():
+                    messages.error(request, "Bu e-poçt artıq istifadə olunub!")
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+                else:
+                    if len(pass1) < 6:
+                        messages.error(request, "Parol minimum 6 simvoldan ibarət olmalıdır!")
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+                    else:
+                        user = NewUser.objects.create_user(username=username, first_name=first_name, email=email, password=pass1, is_barber=False, is_active=False)
+                        user.save()
+
+                        try:
+                            send_activation_mail(user, request)
+                        except SMTPRecipientsRefused:
+                            user.delete()
+                            messages.error(request, "E-poçtunuzu düzgün daxil etməsəniz, qeydiyyatınız tamamlanmayacaq!")
+                            return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+
+                        messages.success(request, "Qeydiyyatınız uğurla tamamlandı!")
+                        messages.success(request, "Hesabı aktivləşdirmək üçün e-poçta daxil olun.(Spam bölməsinə baxın!)")
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+        else:
+            messages.error(request, "Parollar eyni deyil!")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', reverse('register')))
+    return render(request, "register.html")
+
+
+def activate_user(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = NewUser.objects.get(pk=uid)
+
+    except Exception:
+        user = None
+
+    if user and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        return render(request, 'login.html',
+                      {"success1": 'Email aktivləşdirildi giriş edə bilərsiniz.', 'username': user})
+    else:
+        return render(request, 'login.html', {"success1": 'Email aktivdir', 'username': user})
 
 
 def forget_password(request):
     if request.method == 'POST':
         username = request.POST.get('username')
 
-        if not User.objects.filter(username=username).first():
+        if not NewUser.objects.filter(username=username).first():
             return render(request, "forget-password.html",
                           {'message': 'Belə username tapılmadı:', 'username': username})
 
-        user = User.objects.get(username=username)
+        user = NewUser.objects.get(username=username)
         reset_password_mail(user, request)
         return render(request, 'login.html', {'message': 'E-poçtunuza parol sıfırlmaq linki göndərildi!'})
 
     return render(request, 'forget-password.html')
 
 
+# buna bax
 def reset_password(request, uidb64, token):
-    try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-        user_id = user.id
-
-    except Exception:
-        user = None
-
+    uid = force_text(urlsafe_base64_decode(uidb64))
+    user = NewUser.objects.get(pk=uid)
+    user_id = user.id
     if user and account_activation_token.check_token(user, token):
         if request.method == 'POST':
             pass1 = request.POST["password1"]
@@ -90,7 +138,7 @@ def reset_password(request, uidb64, token):
                     return redirect(f'/reset-password/{uidb64}/{token}')
 
                 else:
-                    user = User.objects.get(id=int(user_id))
+                    user = NewUser.objects.get(id=int(user_id))
                     user.set_password(pass1)
                     user.save()
                     return render(request, 'login.html',
@@ -99,89 +147,41 @@ def reset_password(request, uidb64, token):
     return render(request, 'reset-password.html', {'user_id': user_id})
 
 
-def register(request):
+def login_request(request):
     if request.method == 'POST':
-        username = (request.POST["username"]).lower()
-        email = request.POST["email"]
-        pass1 = request.POST["password1"]
-        pass2 = request.POST["password2"]
+        username = (request.POST['username'])
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
 
-        if pass1 == pass2:
-            if User.objects.filter(username=username).exists():
-                return render(request, "register.html",
-                              {
-                                  "error": "Bu ad artıq istifadə olunub!",
-                                  "username": username,
-                                  "email": email
-                              })
+        if user is not None:
+            login(request, user)
+            if user.is_barber:
+                barber = Barber.objects.get(user=request.user.id)
+                return redirect('barber', barber.id)
             else:
-                if User.objects.filter(email=email).exists():
-                    return render(request, "register.html",
-                                  {
-                                      "error": "Bu e-poçt artıq istifadə olunub!",
-                                      "username": username,
-                                      "email": email
-                                  })
-                else:
-                    if len(pass1) < 6:
-                        return render(request, "register.html", {
-                            "error": "Parol minimum 6 simvoldan ibarət olmalıdır! ",
-                            "username": username,
-                            "email": email
-                        })
-                    else:
-                        user = User.objects.create_user(username=username, email=email, password=pass1, is_barber=False,
-                                                        is_active=False)
-                        user.save()
-
-                        # mail gonder
-                        try:
-                            send_activation_mail(user, request)
-                        except SMTPRecipientsRefused:
-                            user.delete()
-                            return render(request, "register.html", {
-                                "error": "E-poçtunuzu düzgün daxil etməsəniz, qeydiyyatınız tamamlanmayacaq! ",
-                                "username": username,
-                                "email": email
-                            })
-
-                        return render(request, "login.html",
-                                      {
-                                          "success1": "Qeydiyyatınız uğurla tamamlandı!",
-                                          "success2": "Hesabı aktivləşdirmək üçün e-poçta daxil olun.(Spam bölməsinə baxın!)",
-                                          "username": username,
-                                      })
+                return redirect('')
         else:
-            return render(request, "register.html",
-                          {
-                              "error": "Parollar eyni deyil!",
-                              "username": username,
-                              "email": email
-                          })
-    return render(request, "register.html")
+            return render(request, "login.html", {
+                "error": "Daxil edilən məlumatlarda səhvlik var!"
+            })
+    return render(request, 'login.html')
 
 
-def activate_user(request, uidb64, token):
-    try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
+def logout_request(request):
+    logout(request)
+    return redirect("")
 
-    except Exception:
-        user = None
 
-    if user and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        return render(request, 'login.html',
-                      {"success1": 'Email aktivləşdirildi giriş edə bilərsiniz.', 'username': user})
-    else:
-        return render(request, 'login.html', {"success1": 'Email aktivdir', 'username': user})
+def index(request):
+    barbers = Barber.objects.filter(is_home=True, is_active=True)
+    salons = BarberSalon.objects.all()
+    return render(request, "index.html", {"barbers": barbers, "salons": salons})
 
 
 def barber_request(request, id):
     today = datetime.datetime.now().strftime("%Y-%m-%d")
     barbers = Barber.objects.filter(is_home=True, is_active=True)
-    barber = Barber.objects.get(id=id, is_home=True, is_active=True)
+    barber = Barber.objects.get(id=id, is_home=True)
     services = Service.objects.filter(barber_name=barber.id)
     reservations = Reservation.objects.filter(barber_id=barber.id, date=today).order_by('time')
 
@@ -211,7 +211,7 @@ def reserve(request, id):
 
     if request.method == 'POST':
         if request.user.is_anonymous:
-            user = User.objects.get(username='anonim')
+            user = NewUser.objects.get(username='anonim')
         else:
             user = request.user
         full_name = request.POST['full_name']
@@ -243,7 +243,7 @@ def reserve(request, id):
             })
 
         new_reservation = Reservation(
-            user=User.objects.get(username=user),
+            user=NewUser.objects.get(username=user),
             barber_id=Barber.objects.get(id=id),
             full_name=full_name,
             phone_number=phone,
@@ -322,33 +322,8 @@ def reserve(request, id):
     })
 
 
-def login_request(request):
-    if request.method == 'POST':
-        username = (request.POST['username'])
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            if user.is_barber:
-                barber = Barber.objects.get(user=request.user.id)
-                return redirect('barber', barber.id)
-            else:
-                return redirect('')
-        else:
-            return render(request, "login.html", {
-                "error": "Daxil edilən məlumatlarda səhvlik var!"
-            })
-    return render(request, 'login.html')
-
-
-def logout_request(request):
-    logout(request)
-    return redirect("")
-
-
-def user_profile(request):
-    user = User.objects.get(id=request.user.id)
+def user_profile(request, id):
+    user = NewUser.objects.get(id=id)
     context = {
         "reservation_count": Reservation.objects.filter(user=request.user).count(),
         "reservations": Reservation.objects.filter(user=request.user)
@@ -388,7 +363,7 @@ def user_reservations_delete(request, id):
 
 def profile(request, id):
     barber = Barber.objects.get(id=id)
-    user = User.objects.get(id=request.user.id)
+    user = NewUser.objects.get(id=request.user.id)
     transactions = Transaction.objects.filter(barber=barber).order_by("-date")[:3]
 
     if request.method == 'POST':
@@ -401,34 +376,41 @@ def profile(request, id):
         instagram = request.POST['instagram']
         youtube = request.POST['youtube']
         whatsapp = request.POST['whatsapp']
+        day_off = request.POST['day_off']
         start_time = request.POST['start_time']
         end_time = request.POST['end_time']
-        day_off = request.POST['day_off']
 
-        barber.barber_adress = address
-        barber.barber_phone_number = phone_number
-        barber.barber_facebook = facebook
-        barber.barber_twitter = twitter
-        barber.barber_instagram = instagram
-        barber.barber_youtube = youtube
-        barber.barber_whatsapp = whatsapp
-        barber.barber_start_time = start_time
-        barber.barber_end_time = end_time
-        barber.is_active = day_off
+        if time_is_verification(start_time, end_time):
+            if start_time >= end_time:
+                messages.error(request, "Başlama vaxtı bitmə vaxtından kiçik və ya bərabər ola bilməz!")
+                return HttpResponseRedirect(request.META['HTTP_REFERER'])
+            else:
+                barber.barber_address = address
+                barber.barber_phone_number = phone_number
+                barber.barber_facebook = facebook
+                barber.barber_twitter = twitter
+                barber.barber_instagram = instagram
+                barber.barber_youtube = youtube
+                barber.barber_whatsapp = whatsapp
+                barber.barber_start_time = start_time
+                barber.barber_end_time = end_time
+                barber.is_active = day_off
 
-        user.first_name = first_name
-        user.last_name = last_name
-        user.save()
-        barber.save()
-        messages.success(request, "Uğurla redakte olundu!")
-        return HttpResponseRedirect(request.META['HTTP_REFERER'])
-
+                user.first_name = first_name
+                user.last_name = last_name
+                user.save()
+                barber.save()
+                messages.success(request, "Uğurla redakte olundu!")
+                return HttpResponseRedirect(request.META['HTTP_REFERER'])
+        else:
+            messages.error(request, "Saatı düzgün daxil edin!")
+            return HttpResponseRedirect(request.META['HTTP_REFERER'])
     return render(request, "profile.html", {"barber": barber, "transactions": transactions})
 
 
 def addbalance(request, id):
     barber = Barber.objects.get(id=id)
-    user = User.objects.get(id=request.user.id)
+    user = NewUser.objects.get(id=request.user.id)
     transactions = Transaction.objects.filter(barber=barber)[:3]
     if request.method == 'POST':
         money = request.POST['money']

@@ -36,9 +36,11 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h4 class="text-right">Hesab tənzimləmələri</h4><br>
                             </div>
-                            {% for message in messages %}
-                            <h6 style="background-color: rgba(0, 128, 0, 0.4); line-height: 3;"> {{message}} </h6>
-                            {% endfor %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <h6 class="alert {{ message.tags }} m-2"> {{message}} </h6>
+                                {% endfor %}
+                            {% endif %}
                             <div class="row mt-2">
                                 <div class="col-md-6">
                                     <label class="labels">Adınız</label>
@@ -56,7 +58,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label class="labels">Address</label>
-                                    <input type="text" name="address" value="{{barber.barber_adress}}" maxlength="50" id="id_address" class="form-control">
+                                    <input type="text" name="address" value="{{barber.barber_address}}" maxlength="300" id="id_address" class="form-control">
                                 </div>
                                 <div class="col-md-12">
                                     <label class="labels">Facebook</label>
@@ -108,21 +110,21 @@
                         <div class="col-md-12">
                             <div class="p-3 py-5">
                                 <div class="d-flex justify-content-between align-items-center experience"><h4 class="text-right">Hesab əməliyyatları</h4></div><br>
-                                {% comment %} <h3>Tezliklə</h3> {% endcomment %}
-                                <div class="col-md-12">
-                                    <label style="font-size:18px;" class="labels">Hesabdakı məbləğ:&nbsp;{{barber.barber_money}}&nbsp;manat</label>
-                                </div><br>
-                                <a href="{% url 'addbalance' barber.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Hesabı artır</span></a><br><br>
-                                <div class="col-md-12">
-                                    <label style="font-size:18px;" class="labels"><b>Hesab tarixçəsi</b></label><br>
-                                    {%for transaction in transactions%}
-                                        <span> Məbləğ:&nbsp; {{transaction.money}}&nbsp;manat </span><br>
-                                        <span> Tarix:&nbsp; {{transaction.date}} </span><br>
-                                        <span> Əməliyyat:&nbsp;{{transaction.is_success_description}} </span><br>
-                                        <span> -------------------------------------------------- </span><br>
-                                    {%endfor%}
-                                    <a href="{% url 'balance' barber.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Daha ətraflı</span></a><br><br>
-                                </div><br>
+                                <h3>Tezliklə</h3>
+{#                                <div class="col-md-12">#}
+{#                                    <label style="font-size:18px;" class="labels">Hesabdakı məbləğ:&nbsp;{{barber.barber_money}}&nbsp;manat</label>#}
+{#                                </div><br>#}
+{#                                <a href="{% url 'addbalance' barber.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Hesabı artır</span></a><br><br>#}
+{#                                <div class="col-md-12">#}
+{#                                    <label style="font-size:18px;" class="labels"><b>Hesab tarixçəsi</b></label><br>#}
+{#                                    {%for transaction in transactions%}#}
+{#                                        <span> Məbləğ:&nbsp; {{transaction.money}}&nbsp;manat </span><br>#}
+{#                                        <span> Tarix:&nbsp; {{transaction.date}} </span><br>#}
+{#                                        <span> Əməliyyat:&nbsp;{{transaction.is_success_description}} </span><br>#}
+{#                                        <span> -------------------------------------------------- </span><br>#}
+{#                                    {%endfor%}#}
+{#                                    <a href="{% url 'balance' barber.id %}"><span class="border px-3 p-1 add-experience"><i class="fa fa-plus"></i>&nbsp;Daha ətraflı</span></a><br><br>#}
+{#                                </div><br>#}<br>
                                 <div class="col-md-12">
                                     <label style="font-size:18px;" class="labels"><b>Rezervasiya tarixçəsi</b></label><br>
                                         <span> Bugün:&nbsp;{{barber.count_reservation_current_day}}&nbsp;nəfər </span><br>

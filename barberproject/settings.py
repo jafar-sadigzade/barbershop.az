@@ -9,15 +9,17 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
-from django.core.management.utils import get_random_secret_key
-from pathlib import Path
 import os
 import sys
 import dj_database_url
-
 import django
+from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
+from pathlib import Path
 from django.utils.encoding import force_str
+from django.contrib.messages import constants as messages
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,11 +29,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = 'django-insecure-!4mbn8#!n8&ac$a$*7mw5gz+b5%5230$-==t#p%+)h3vw+0g%p'
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 CSRF_TRUSTED_ORIGINS = ['https://nmravto.az']
@@ -91,7 +93,7 @@ if DEVELOPMENT_MODE is True:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+            "NAME": os.path.join(BASE_DIR, "db_local.sqlite3"),
         }
     }
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
@@ -137,11 +139,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 USE_SPACES = os.getenv("USE_SPACES", "False") == "True"
-print(USE_SPACES)
 
 if bool(USE_SPACES):
-    print(1)
-    # settings
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
@@ -157,7 +156,6 @@ if bool(USE_SPACES):
     PRIVATE_MEDIA_LOCATION = 'private'
     PRIVATE_FILE_STORAGE = 'barberproject.storage_backends.PrivateMediaStorage'
 else:
-    print(2)
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
@@ -187,3 +185,17 @@ EMAIL_HOST_USER = 'berber.rezervasiya@gmail.com'
 EMAIL_HOST_PASSWORD = 'xhlkqgfukfitvycv'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
+
+AUTH_USER_MODEL = 'sign.NewUser'
+
+TIME_INPUT_FORMATS = [
+    '%H:%M',        # '14:30'
+]
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger'
+}

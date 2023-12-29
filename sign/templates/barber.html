@@ -97,7 +97,6 @@
                                         {% if error %}<p class="text-black" style="background-color: rgba(255, 0, 0, 0.4); line-height: 2;">{{error}}</p>{%endif%}
                                         <br>
                                         <a class="btn custom-btn smoothscroll mb-2" href="{% url '' %}">Geri qayıt</a>
-                                        {% comment %} <a class="btn custom-btn smoothscroll mb-2" href="#section_3">What we do</a> {% endcomment %}
                                     </div>
                                 </div>
                             </div>
@@ -337,7 +336,7 @@
                                     </div>
 
                                     <div class="col-lg-12 col-12 mx-auto mt-5 pt-5">
-                                        <iframe class="google-map" src="{{barber.barber_adress}}" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                        <iframe class="google-map" src="{{barber.barber_address}}" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                     </div>
 
                                 </div>

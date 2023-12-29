@@ -1,33 +1,49 @@
 from django.contrib import admin
-from .models import Barber, Service, Reservation, Transaction, BarberSalon
+from .models import Barber, Service, Reservation, Transaction, BarberSalon, NewUser
+from django.contrib.auth.admin import UserAdmin
 
 
-# Register your models here.
+class UserAdminConfig(UserAdmin):
+    ordering = ['-date_joined']
+    list_display = ['email', 'username', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_barber']
+    list_editable = ['is_barber']
+    fieldsets = (
+        (None, {'fields': ('email', 'username', 'first_name', 'last_name')}),
+        ('Permissions', {'fields': ('is_staff', 'is_superuser', 'is_active', 'is_barber')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'is_staff', 'is_superuser', 'is_active', 'is_barber')
+        }),
+    )
 
-class adminBarber(admin.ModelAdmin):
-    list_display = ("barber_name", "joined_date", "is_active", "is_home")
+
+class AdminBarber(admin.ModelAdmin):
+    list_display = ("user", "joined_date", "is_active", "is_home")
     list_editable = ("is_active", "is_home",)
 
 
-class adminService(admin.ModelAdmin):
+class AdminService(admin.ModelAdmin):
     list_display = ("id", "barber_service", "service_price", "service_time")
 
 
-class adminReservation(admin.ModelAdmin):
+class AdminReservation(admin.ModelAdmin):
     list_display = ("full_name", "phone_number", "is_active", "is_expired")
     list_editable = ("is_active", "is_expired")
 
 
-class adminTransaction(admin.ModelAdmin):
+class AdminTransaction(admin.ModelAdmin):
     list_display = ("barber", "money", "is_success", "date")
 
 
-class adminBarberSalon(admin.ModelAdmin):
+class AdminBarberSalon(admin.ModelAdmin):
     list_display = ("salon_name",)
 
 
-admin.site.register(Barber, adminBarber)
-admin.site.register(Service, adminService)
-admin.site.register(Reservation, adminReservation)
-admin.site.register(Transaction, adminTransaction)
-admin.site.register(BarberSalon, adminBarberSalon)
+admin.site.register(Barber, AdminBarber)
+admin.site.register(Service, AdminService)
+admin.site.register(Reservation, AdminReservation)
+admin.site.register(Transaction, AdminTransaction)
+admin.site.register(BarberSalon, AdminBarberSalon)
+admin.site.register(NewUser, UserAdminConfig)

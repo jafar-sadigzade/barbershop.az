@@ -24,13 +24,21 @@
                     <header>Qeydiyyat</header>
                     <form method="POST">
                         {% csrf_token %}
-                        {% if error %} <div style="background-color: rgba(256, 0, 0, 0.4); line-height: 3;"> {{error}} </div> {%endif%}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <h4 class="alert {{ message.tags }} m-2"> {{message}} </h4>
+                            {% endfor %}
+                        {% endif %}
                         <div class="field input-field">
-                            <input type="text" placeholder="username" class="input" name="username" maxlength="150" value={{username}}>
+                            <input type="text" placeholder="istifadəçi adınız" class="input" name="username" maxlength="150" value={{username}}>
+                        </div>
+                    
+                        <div class="field input-field">
+                            <input type="text" placeholder="adınız" class="input" name="first_name" maxlength="150" value={{username}}>
                         </div>
 
                         <div class="field input-field">
-                            <input type="email" placeholder="email" class="input" name="email" maxlength="150" value={{email}}>
+                            <input type="email" placeholder="e-poçt" class="input" name="email" maxlength="150" value={{email}}>
                         </div>
 
                         <div class="field input-field">
