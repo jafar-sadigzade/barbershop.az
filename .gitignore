@@ -1,4 +1,12 @@
 uploads
-db_local.sqlite3
-barberenv
+*.sqlite3
+venv
 .env
+*/__pycache__/
+.idea
+*/migrations/
+
+package-lock.json
+package.json
+node_modules
+purgecss.config.js
