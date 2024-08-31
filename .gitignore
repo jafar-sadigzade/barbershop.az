@@ -2,3 +2,7 @@ uploads
 db_local.sqlite3
 barberenv
 .env
+*/__pycache__
+*/migrations/
+.idea/
+venv/
